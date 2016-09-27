@@ -19,7 +19,7 @@ public class SuicaHistory {
     }
 
     private void init(byte[] res, int off) {
-        this.remain  = toInt(res, off, 13,14); //11-10: Suica残高
+        this.remain  = toInt(res, off, 11,10); //11-10: Suica残高
     }
 
     private int toInt(byte[] res, int off, int... idx) {
