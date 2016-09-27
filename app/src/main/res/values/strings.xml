@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">FeliCaReader</string>
     <string name="read_error">読み込めませんでした</string>
+    <string name="support_error">対応していません</string>
 </resources>

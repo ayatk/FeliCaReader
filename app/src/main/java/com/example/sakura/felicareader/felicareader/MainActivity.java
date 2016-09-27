@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private String[][] techListsArray;
     private NfcAdapter mAdapter;
     private PendingIntent pendingIntent;
-    private Context context;
+    //private Context context;
 
     private FelicaReader felicaReader = new FelicaReader();
 
@@ -71,8 +71,8 @@ public class MainActivity extends AppCompatActivity {
         if (tag == null) {
             return;
         }
-        context = getApplicationContext();
-        felicaReader.readTag(tag, context);
+        //context = getApplicationContext();
+        felicaReader.readTag(tag);
     }
 
     @Override

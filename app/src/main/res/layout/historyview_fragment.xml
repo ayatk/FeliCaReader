@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:textSize="64sp"
         android:textStyle="bold"
-        android:text="0円"
         android:id="@+id/balance"
         android:gravity="center" />
 </LinearLayout>
