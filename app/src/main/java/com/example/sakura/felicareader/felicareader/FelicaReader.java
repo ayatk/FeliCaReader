@@ -32,7 +32,7 @@ public class FelicaReader extends Fragment {
         return inflater.inflate(R.layout.readerview_fragment, container, false);
     }
 
-    public void readTag(Tag tag) {
+    public void readTag(Tag tag, Context context) {
 
         byte[] felicaIDm;
         byte[] systemcode;
@@ -69,13 +69,13 @@ public class FelicaReader extends Fragment {
             Log.d(TAG, "res:" + toHex(res));
             nfc.close();
 
-            Log.d(TAG, "balance:" + parse(res,card));
+            Log.d(TAG, "balance:" + parse(res,card,context));
 
-            changeFragment(parse(res,card));
+            changeFragment((parse(res,card,context)),card);
 
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
-            Toast.makeText(getContext(), R.string.read_error, Toast.LENGTH_LONG).show();
+            Toast.makeText(context, R.string.read_error, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -103,7 +103,7 @@ public class FelicaReader extends Fragment {
         return msg;
     }
 
-    private String parse(byte[] res,String card) throws Exception {
+    private String parse(byte[] res,String card,Context context) throws Exception {
         // res[10] = エラーコード。0x00の場合正常。
         if (res[10] != 0x00) throw new RuntimeException("Felica error.");
 
@@ -127,17 +127,18 @@ public class FelicaReader extends Fragment {
                 }
                 break;
             default:
-                Toast.makeText(getContext(), R.string.support_error, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, R.string.support_error, Toast.LENGTH_LONG).show();
                 break;
         }
         return str;
     }
 
-    private void changeFragment(String data){
+    private void changeFragment(String data,String card){
         HistoryView fragment = new HistoryView();
         FragmentTransaction transaction = getActivity().getSupportFragmentManager()
                 .beginTransaction();
         Bundle bundle = new Bundle();
+        bundle.putString("card",card);
         bundle.putString("data",data);
         fragment.setArguments(bundle);
         transaction.replace(R.id.fragment_container, fragment);

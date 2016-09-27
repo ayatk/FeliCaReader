@@ -18,8 +18,13 @@ public class HistoryView extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.historyview_fragment, container, false);
 
+        Log.v("Cardview", getArguments().getString("card"));
         Log.v("Dataview", getArguments().getString("data"));
 
+        // カード表示
+        TextView cardText = (TextView) view.findViewById(R.id.card);
+        cardText.setText(getArguments().getString("card"));
+        // 残高表示
         TextView balanceText = (TextView) view.findViewById(R.id.balance);
         balanceText.setText(getArguments().getString("data"));
 
