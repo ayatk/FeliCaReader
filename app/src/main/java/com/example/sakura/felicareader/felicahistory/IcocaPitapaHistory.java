@@ -1,25 +1,25 @@
 package com.example.sakura.felicareader.felicahistory;
 
 /**
- * Suica履歴コード
+ * ICOCA,PiTaPa履歴コード
  * 参考：https://osdn.jp/projects/felicalib/wiki/suica
  */
 
-public class SuicaHistory {
+public class IcocaPitapaHistory {
 
     public int remain;
 
-    public SuicaHistory(){
+    public IcocaPitapaHistory(){
     }
 
-    public static SuicaHistory parse(byte[] res, int off) {
-        SuicaHistory self = new SuicaHistory();
+    public static IcocaPitapaHistory parse(byte[] res, int off) {
+        IcocaPitapaHistory self = new IcocaPitapaHistory();
         self.init(res, off);
         return self;
     }
 
     private void init(byte[] res, int off) {
-        this.remain  = toInt(res, off, 11,10); //11-10: Suica残高
+        this.remain  = toInt(res, off, 11,10); //11-10: ICOCA,PiTaPa残高
     }
 
     private int toInt(byte[] res, int off, int... idx) {

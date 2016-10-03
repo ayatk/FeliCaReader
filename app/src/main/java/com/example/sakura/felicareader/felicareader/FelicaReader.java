@@ -14,7 +14,8 @@ import android.widget.Toast;
 
 import com.example.sakura.felicareader.R;
 import com.example.sakura.felicareader.felicahistory.ICaHistory;
-import com.example.sakura.felicareader.felicahistory.SuicaHistory;
+import com.example.sakura.felicareader.felicahistory.IcocaPitapaHistory;
+import com.example.sakura.felicareader.felicahistory.SuicaPasmoHistory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,8 +25,9 @@ public class FelicaReader extends Fragment {
 
     private static final String TAG = "NFC";
 
-    private final byte[] ica = {(byte) 0x80,(byte) 0xef}; //ICa システムコード
-    private final byte[] suica = {(byte) 0x00,(byte) 0x03}; //Suica システムコード
+    private final byte[] suicapasmopmm = {(byte)0x10,(byte)0x0B,(byte)0x4B,(byte)0x42,(byte)0x84,(byte)0x85,(byte)0xD0,(byte)0xFF}; //Suica,PASMO PMm
+    private final byte[] icocapitapappm = {(byte)0x04,(byte)0x01,(byte)0x4B,(byte)0x02,(byte)0x4F,(byte)0x49,(byte)0x93,(byte)0xFF}; //ICOCA,PiTaPa PMm
+    private final byte[] icapmm = {(byte)0x03,(byte)0x01,(byte)0x4B,(byte)0x02,(byte)0x4F,(byte)0x49,(byte)0x93,(byte)0xFF}; //ICa PMm
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -35,30 +37,36 @@ public class FelicaReader extends Fragment {
     public void readTag(Tag tag, Context context) {
 
         byte[] felicaIDm;
-        byte[] systemcode;
-        byte[] servicecode = new byte[]{};
+        byte[] felicapmm;
+        byte[] servicecode;
         String card = "";
+
+        servicecode = new byte[]{};
 
         NfcF nfc = NfcF.get(tag);
 
         felicaIDm = tag.getId(); //IDm取得
         Log.d(TAG, "IDm:" + toHex(felicaIDm));
 
-        systemcode = nfc.getSystemCode(); //システムコード取得
-        Log.d(TAG, "Systemcode:" + toHex(systemcode));
+        felicapmm = nfc.getManufacturer(); //PMm取得
+        Log.d(TAG, "PMm:" + toHex(felicapmm));
 
         try {
             nfc.connect();
 
             //カードの識別
-            if(Arrays.equals(systemcode ,ica)){
+            if(Arrays.equals(felicapmm ,suicapasmopmm)){
+                Log.d(TAG, "systemcode:" + "Suica,PASMO");
+                servicecode =new byte[]{(byte) 0x0f ,(byte) 0x09};
+                card = "Suica,PASMO";
+            }else if(Arrays.equals(felicapmm ,icocapitapappm)){
+                Log.d(TAG, "systemcode:" + "ICOCA,PiTaPa");
+                servicecode =new byte[]{(byte) 0x0f ,(byte) 0x09};
+                card = "ICOCA,PiTaPa";
+            }else if(Arrays.equals(felicapmm ,icapmm)){
                 Log.d(TAG, "systemcode:" + "ICa");
                 servicecode =new byte[]{(byte) 0x8f ,(byte) 0x89};
                 card = "ICa";
-            }else if(Arrays.equals(systemcode ,suica)){
-                Log.d(TAG, "systemcode:" + "Suica");
-                servicecode =new byte[]{(byte) 0x0f ,(byte) 0x09};
-                card = "Suica";
             }
 
             // Read Without Encryption コマンドを作成(IDm,読み取る個数)
@@ -114,15 +122,21 @@ public class FelicaReader extends Fragment {
 
         // 各FeliCa残高履歴の解析
         switch (card){
-            case "ICa":
+            case "Suica,PASMO":
                 for (int i = 0; i < size; i++) {
-                    ICaHistory rireki = ICaHistory.parse(res, 13 + i * 16);
+                    SuicaPasmoHistory rireki = SuicaPasmoHistory.parse(res, 13 + i * 16);
                     str = rireki.toString() +"\n";
                 }
                 break;
-            case "Suica":
+            case "ICOCA,PiTaPa":
                 for (int i = 0; i < size; i++) {
-                    SuicaHistory rireki = SuicaHistory.parse(res, 13 + i * 16);
+                    IcocaPitapaHistory rireki = IcocaPitapaHistory.parse(res, 13 + i * 16);
+                    str = rireki.toString() +"\n";
+                }
+                break;
+            case "ICa":
+                for (int i = 0; i < size; i++) {
+                    ICaHistory rireki = ICaHistory.parse(res, 13 + i * 16);
                     str = rireki.toString() +"\n";
                 }
                 break;

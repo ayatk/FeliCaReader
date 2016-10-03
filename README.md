@@ -1,6 +1,6 @@
 #FeliCaReader
 FeliCaの残高を読み取るAndroidアプリ  
-※今はICaとSuicaにしか対応していない、今後別のFelicaにも対応する予定
+~~※今はICaとSuicaにしか対応していない、今後別のFelicaにも対応する予定~~
 ##追加予定の機能
 ・他のFeliCaに対応  
 ・履歴の表示
