@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.sakura.felicareader.R;
+import com.example.sakura.felicareader.felicahistory.EdyHistory;
 import com.example.sakura.felicareader.felicahistory.ICaHistory;
 import com.example.sakura.felicareader.felicahistory.IcocaPitapaHistory;
 import com.example.sakura.felicareader.felicahistory.SuicaPasmoHistory;
@@ -28,6 +29,7 @@ public class FelicaReader extends Fragment {
     private final byte[] suicapasmopmm = {(byte)0x10,(byte)0x0B,(byte)0x4B,(byte)0x42,(byte)0x84,(byte)0x85,(byte)0xD0,(byte)0xFF}; //Suica,PASMO PMm
     private final byte[] icocapitapappm = {(byte)0x04,(byte)0x01,(byte)0x4B,(byte)0x02,(byte)0x4F,(byte)0x49,(byte)0x93,(byte)0xFF}; //ICOCA,PiTaPa PMm
     private final byte[] icapmm = {(byte)0x03,(byte)0x01,(byte)0x4B,(byte)0x02,(byte)0x4F,(byte)0x49,(byte)0x93,(byte)0xFF}; //ICa PMm
+    private final byte[] edypmm = {(byte)0x01,(byte)0x20,(byte)0x22,(byte)0x04,(byte)0x27,(byte)0x67,(byte)0x4E,(byte)0xFF}; //Edy PMm
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -39,9 +41,14 @@ public class FelicaReader extends Fragment {
         byte[] felicaIDm;
         byte[] felicapmm;
         byte[] servicecode;
+        byte[] targetSystemcode;
+        byte[] polling;
+        byte[] pollingRes;
+
         String card = "";
 
         servicecode = new byte[]{};
+        //pollingRes = new byte[]{};
 
         NfcF nfc = NfcF.get(tag);
 
@@ -57,16 +64,25 @@ public class FelicaReader extends Fragment {
             //カードの識別
             if(Arrays.equals(felicapmm ,suicapasmopmm)){
                 Log.d(TAG, "systemcode:" + "Suica,PASMO");
-                servicecode =new byte[]{(byte) 0x0f ,(byte) 0x09};
+                servicecode =new byte[]{(byte) 0x09 ,(byte) 0x0f};
                 card = "Suica,PASMO";
             }else if(Arrays.equals(felicapmm ,icocapitapappm)){
                 Log.d(TAG, "systemcode:" + "ICOCA,PiTaPa");
-                servicecode =new byte[]{(byte) 0x0f ,(byte) 0x09};
+                servicecode =new byte[]{(byte) 0x09 ,(byte) 0x0f};
                 card = "ICOCA,PiTaPa";
             }else if(Arrays.equals(felicapmm ,icapmm)){
                 Log.d(TAG, "systemcode:" + "ICa");
-                servicecode =new byte[]{(byte) 0x8f ,(byte) 0x89};
+                servicecode =new byte[]{(byte) 0x89 ,(byte) 0x8f};
                 card = "ICa";
+            }else if(Arrays.equals(felicapmm ,edypmm)){
+                Log.d(TAG, "systemcode:" + "Edy");
+                targetSystemcode = new byte[]{(byte)0xfe,(byte)0x00}; //System 1(第２層)
+                polling = polling(targetSystemcode);                  //Poolingコマンド作成
+                pollingRes = nfc.transceive(polling);                 //Poolingコマンド送信・結果取得
+                felicaIDm = Arrays.copyOfRange(pollingRes,2,10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
+                Log.d(TAG, "IDm:" + toHex(felicaIDm));
+                servicecode = new byte[]{(byte) 0x17 ,(byte) 0x0f};
+                card = "Edy";
             }
 
             // Read Without Encryption コマンドを作成(IDm,読み取る個数)
@@ -88,6 +104,24 @@ public class FelicaReader extends Fragment {
     }
 
     /**
+     * Polling コマンド取得
+     */
+    private byte[] polling(byte[] systemCode) {
+        ByteArrayOutputStream bout = new ByteArrayOutputStream(100);
+
+        bout.write(0x00);           // データ長バイトのダミー
+        bout.write(0x00);           // コマンドコード
+        bout.write(systemCode[0]);  // systemCode
+        bout.write(systemCode[1]);  // systemCode
+        bout.write(0x01);           // リクエストコード
+        bout.write(0x0f);           // タイムスロット
+
+        byte[] msg = bout.toByteArray();
+        msg[0] = (byte) msg.length; // 先頭１バイトはデータ長
+        return msg;
+    }
+
+    /**
      * Read Without Encryption コマンド取得
      */
     private byte[] readWithoutEncryption(byte[] idm, byte[] serviceCode,int size)
@@ -98,8 +132,8 @@ public class FelicaReader extends Fragment {
         bout.write(0x06);        // コマンド「Read Without Encryption」
         bout.write(idm);         // IDm 8byte
         bout.write(1);           // サービスコードリストの長さ(以下２バイトがこの数分繰り返す)
-        bout.write(serviceCode[0]);        // 利用履歴のサービスコード下位バイト suica 0f ica 8f
-        bout.write(serviceCode[1]);        // 利用履歴のサービスコード上位バイト suica 0f ica 89
+        bout.write(serviceCode[1]);        // 利用履歴のサービスコード下位バイト
+        bout.write(serviceCode[0]);        // 利用履歴のサービスコード上位バイト
         bout.write(size);        // ブロック数
         for (int i = 0; i < size; i++) {
             bout.write(0x80);    // ブロックエレメント上位バイト 「Felicaユーザマニュアル抜粋」の4.3項参照
@@ -137,6 +171,12 @@ public class FelicaReader extends Fragment {
             case "ICa":
                 for (int i = 0; i < size; i++) {
                     ICaHistory rireki = ICaHistory.parse(res, 13 + i * 16);
+                    str = rireki.toString() +"\n";
+                }
+                break;
+            case "Edy":
+                for (int i = 0; i < size; i++) {
+                    EdyHistory rireki = EdyHistory.parse(res, 13 + i * 16);
                     str = rireki.toString() +"\n";
                 }
                 break;
