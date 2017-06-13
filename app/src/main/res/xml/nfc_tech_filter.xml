@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Felica(NFC-TypeB)を読み取る -->
     <!-- Felica(NFC-TypeF)を読み取る -->
     <tech-list>
+        <tech>android.nfc.tech.NfcB</tech>
         <tech>android.nfc.tech.NfcF</tech>
     </tech-list>
-</PreferenceScreen>
+</resources>

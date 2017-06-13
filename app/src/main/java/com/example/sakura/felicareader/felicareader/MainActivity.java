@@ -17,6 +17,7 @@ import android.view.Menu;
 
 import com.example.sakura.felicareader.R;
 
+
 public class MainActivity extends AppCompatActivity {
 
     private IntentFilter[] intentFiltersArray;
@@ -59,8 +60,12 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = NfcAdapter.getDefaultAdapter(getApplicationContext());
         if (mAdapter==null) {
             //NFCが搭載されてない端末
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.MyAlertDialogStyle);
+            builder.setMessage("サービス対象外です");
+            builder.setPositiveButton("キャンセル", null);
+
         }else if (!mAdapter.isEnabled()) {
-            //NFCが無効になっている
+            //NFCが無効になっている時
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.MyAlertDialogStyle);
             builder.setTitle("NFC無効");
             builder.setMessage("NFCを有効にしてください");
@@ -70,7 +75,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
             builder.setNegativeButton("キャンセル", null);
-            builder.create().show();
+
+            AlertDialog myDialog = builder.create();
+            //ダイアログ画面外をタッチされても消えないようにする。
+            myDialog.setCanceledOnTouchOutside(false);
+            //ダイアログ表示
+            myDialog.show();
         }
 
     }
