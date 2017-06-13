@@ -2,13 +2,16 @@ package com.example.sakura.felicareader.felicareader;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.NfcF;
+import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 
@@ -54,6 +57,22 @@ public class MainActivity extends AppCompatActivity {
 
         // NfcAdapterを取得
         mAdapter = NfcAdapter.getDefaultAdapter(getApplicationContext());
+        if (mAdapter==null) {
+            //NFCが搭載されてない端末
+        }else if (!mAdapter.isEnabled()) {
+            //NFCが無効になっている
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.MyAlertDialogStyle);
+            builder.setTitle("NFC無効");
+            builder.setMessage("NFCを有効にしてください");
+            builder.setPositiveButton("設定",new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
+                }
+            });
+            builder.setNegativeButton("キャンセル", null);
+            builder.create().show();
+        }
+
     }
 
     @Override
