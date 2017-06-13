@@ -32,6 +32,12 @@ public class FelicaReader extends Fragment {
     private final byte[] icapmm = {(byte)0x03,(byte)0x01,(byte)0x4B,(byte)0x02,(byte)0x4F,(byte)0x49,(byte)0x93,(byte)0xFF}; //ICa PMm
     private final byte[] edypmm = {(byte)0x01,(byte)0x20,(byte)0x22,(byte)0x04,(byte)0x27,(byte)0x67,(byte)0x4E,(byte)0xFF}; //Edy PMm
 
+    private final byte[] suicamid = {(byte)0x01,(byte)0x14}; //Suica ManufactureID
+    private final byte[] pasmomid = {(byte)0x01,(byte)0x10}; //PASMO ManufactureID
+    private final byte[] icocamid = {(byte)0x01,(byte)0x01}; //ICOCA ManufactureID
+    //private final byte[] pitapaidm = {(byte)0x01,(byte)0x14}; //PiTaPa ManufactureID
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.readerview_fragment, container, false);
@@ -46,6 +52,10 @@ public class FelicaReader extends Fragment {
         byte[] polling;
         byte[] pollingRes;
 
+        byte[] mftid;
+
+        int number = 0;
+
         String card = "";
 
         servicecode = new byte[]{};
@@ -55,6 +65,9 @@ public class FelicaReader extends Fragment {
 
         felicaIDm = tag.getId(); //IDm取得
         Log.d(TAG, "IDm:" + toHex(felicaIDm));
+
+        mftid = new byte[]{felicaIDm[0],felicaIDm[1]};
+        Log.d(TAG, "ManufactureID:" + toHex(mftid));
 
         felicapmm = nfc.getManufacturer(); //PMm取得
         Log.d(TAG, "PMm:" + toHex(felicapmm));
@@ -66,14 +79,28 @@ public class FelicaReader extends Fragment {
             if(Arrays.equals(felicapmm ,suicapasmopmm)){
                 Log.d(TAG, "systemcode:" + "Suica,PASMO");
                 servicecode =new byte[]{(byte) 0x09 ,(byte) 0x0f};
-                card = "Suica,PASMO";
+                number = 1;
+                if(Arrays.equals(mftid, suicamid)){
+                    card = "Suica";
+                }else if(Arrays.equals(mftid, pasmomid)){
+                    card = "PASMO";
+                }else{
+                    card = "Suica/PASMO";
+                }
             }else if(Arrays.equals(felicapmm ,icocapitapappm)){
                 Log.d(TAG, "systemcode:" + "ICOCA,PiTaPa");
                 servicecode =new byte[]{(byte) 0x09 ,(byte) 0x0f};
-                card = "ICOCA,PiTaPa";
+                number = 2;
+                if(Arrays.equals(mftid, icocamid)){
+                    card = "ICOCA";
+                }else{
+                    //card = "PiTaPa";
+                    card = "ICOCA,PiTaPa";
+                }
             }else if(Arrays.equals(felicapmm ,icapmm)){
                 Log.d(TAG, "systemcode:" + "ICa");
                 servicecode =new byte[]{(byte) 0x89 ,(byte) 0x8f};
+                number = 3;
                 card = "ICa";
             }else if(Arrays.equals(felicapmm ,edypmm)){
                 Log.d(TAG, "systemcode:" + "Edy");
@@ -83,6 +110,7 @@ public class FelicaReader extends Fragment {
                 felicaIDm = Arrays.copyOfRange(pollingRes,2,10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
                 Log.d(TAG, "IDm:" + toHex(felicaIDm));
                 servicecode = new byte[]{(byte) 0x17 ,(byte) 0x0f};
+                number = 4;
                 card = "Edy";
             }
 
@@ -94,9 +122,9 @@ public class FelicaReader extends Fragment {
             Log.d(TAG, "res:" + toHex(res));
             nfc.close();
 
-            Log.d(TAG, "balance:" + parse(res,card,context));
+            Log.d(TAG, "balance:" + parse(res,number,context));
 
-            changeFragment((parse(res,card,context)),card);
+            changeFragment((parse(res,number,context)),card);
 
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
@@ -146,7 +174,7 @@ public class FelicaReader extends Fragment {
         return msg;
     }
 
-    private String parse(byte[] res,String card,Context context) throws Exception {
+    private String parse(byte[] res,int number,Context context) throws Exception {
         // res[10] = エラーコード。0x00の場合正常。
         if (res[10] != 0x00) throw new RuntimeException("Felica error.");
 
@@ -156,26 +184,26 @@ public class FelicaReader extends Fragment {
         String str = "";
 
         // 各FeliCa残高履歴の解析
-        switch (card){
-            case "Suica,PASMO":
+        switch (number){
+            case 1:
                 for (int i = 0; i < size; i++) {
                     SuicaPasmoHistory rireki = SuicaPasmoHistory.parse(res, 13 + i * 16);
                     str = rireki.toString() +"\n";
                 }
                 break;
-            case "ICOCA,PiTaPa":
+            case 2:
                 for (int i = 0; i < size; i++) {
                     IcocaPitapaHistory rireki = IcocaPitapaHistory.parse(res, 13 + i * 16);
                     str = rireki.toString() +"\n";
                 }
                 break;
-            case "ICa":
+            case 3:
                 for (int i = 0; i < size; i++) {
                     ICaHistory rireki = ICaHistory.parse(res, 13 + i * 16);
                     str = rireki.toString() +"\n";
                 }
                 break;
-            case "Edy":
+            case 4:
                 for (int i = 0; i < size; i++) {
                     EdyHistory rireki = EdyHistory.parse(res, 13 + i * 16);
                     str = rireki.toString() +"\n";
