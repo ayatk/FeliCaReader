@@ -21,7 +21,7 @@ public class HistoryView extends Fragment {
         Log.v("Cardview", getArguments().getString("card"));
         Log.v("Dataview", getArguments().getString("data"));
 
-        // カード表示
+        // カード名表示
         TextView cardText = (TextView) view.findViewById(R.id.card);
         cardText.setText(getArguments().getString("card"));
         // 残高表示
