@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onNewIntent(Intent intent) {
-
+        super.onNewIntent(intent);
         // IntentにTagの基本データが入ってくるので取得。
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         if (tag == null) {
