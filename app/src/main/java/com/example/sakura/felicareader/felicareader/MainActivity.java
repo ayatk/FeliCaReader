@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.add(R.id.fragment_container, felicaReader).commit();
         }
+        Intent intent = getIntent();
 
         pendingIntent = PendingIntent.getActivity(
                 this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         }
         intentFiltersArray = new IntentFilter[] {ndef};
 
-        // FelicaはNFC-TypeFなのでNfcFのみ指定でOK
+        // FelicaはNFC-TypeFなのでNfcFのみ指定
         techListsArray = new String[][] {
                 new String[] { NfcF.class.getName() }
         };
@@ -106,8 +107,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+        if ( this.isFinishing() ) {
+            mAdapter.disableForegroundDispatch(this);
+        }
         super.onPause();
-        mAdapter.disableForegroundDispatch(this);
     }
 
     @Override

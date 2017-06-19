@@ -59,17 +59,19 @@ public class FelicaReader extends Fragment {
         String card = "";
 
         servicecode = new byte[]{};
-        //pollingRes = new byte[]{};
 
         NfcF nfc = NfcF.get(tag);
 
-        felicaIDm = tag.getId(); //IDm取得
+        //IDm取得
+        felicaIDm = tag.getId();
         Log.d(TAG, "IDm:" + toHex(felicaIDm));
 
+        //製造者ID取得
         mftid = new byte[]{felicaIDm[0],felicaIDm[1]};
         Log.d(TAG, "ManufactureID:" + toHex(mftid));
 
-        felicapmm = nfc.getManufacturer(); //PMm取得
+        //PMm取得
+        felicapmm = nfc.getManufacturer();
         Log.d(TAG, "PMm:" + toHex(felicapmm));
 
         try {

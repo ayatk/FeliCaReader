@@ -4,6 +4,8 @@
     <!-- Felica(NFC-TypeF)を読み取る -->
     <tech-list>
         <tech>android.nfc.tech.NfcB</tech>
+    </tech-list>
+    <tech-list>
         <tech>android.nfc.tech.NfcF</tech>
     </tech-list>
 </resources>
