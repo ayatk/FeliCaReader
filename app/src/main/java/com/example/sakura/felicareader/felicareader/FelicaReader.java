@@ -220,7 +220,7 @@ public class FelicaReader extends Fragment {
 
     private void changeFragment(String data,String card){
         HistoryView fragment = new HistoryView();
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager()
+        FragmentTransaction transaction = this.getFragmentManager()
                 .beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString("card",card);

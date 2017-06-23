@@ -94,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
 //        if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
 //            onNewIntent(intent);
 //        }
+        Intent intent = getIntent();
+        getTag(intent);
 
     }
 
@@ -110,12 +112,13 @@ public class MainActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         Log.d(TAG, "onNewIntent");
         // IntentにTagの基本データが入ってくるので取得。
-        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-        if (tag == null) {
-            return;
-        }
-        context = getApplicationContext();
-        felicaReader.readTag(tag,context);
+//        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+//        if (tag == null) {
+//            return;
+//        }
+//        context = getApplicationContext();
+//        felicaReader.readTag(tag,context);
+        getTag(intent);
     }
 
     @Override
@@ -126,6 +129,16 @@ public class MainActivity extends AppCompatActivity {
             mAdapter.disableForegroundDispatch(this);
         }
         super.onPause();
+    }
+
+    public void getTag(Intent intent){
+        // IntentにTagの基本データが入ってくるので取得。
+        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        if (tag == null) {
+            return;
+        }
+        context = getApplicationContext();
+        felicaReader.readTag(tag,context);
     }
 
     @Override
