@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 
 import com.example.sakura.felicareader.R;
@@ -28,16 +29,19 @@ public class MainActivity extends AppCompatActivity {
 
     private FelicaReader felicaReader = new FelicaReader();
 
+    private static final String TAG = "Activity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Log.d(TAG, "onCreate");
+
         if (savedInstanceState == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.add(R.id.fragment_container, felicaReader).commit();
         }
-        Intent intent = getIntent();
 
         pendingIntent = PendingIntent.getActivity(
                 this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
@@ -59,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
         // NfcAdapterを取得
         mAdapter = NfcAdapter.getDefaultAdapter(getApplicationContext());
+
         if (mAdapter==null) {
             //NFCが搭載されてない端末
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.MyAlertDialogStyle);
@@ -84,11 +89,18 @@ public class MainActivity extends AppCompatActivity {
             myDialog.show();
         }
 
+//        Intent intent = getIntent();
+//        String action = intent.getAction();
+//        if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
+//            onNewIntent(intent);
+//        }
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume");
         // NFCの読み込みを有効化
         mAdapter.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, techListsArray);
     }
@@ -96,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        Log.d(TAG, "onNewIntent");
         // IntentにTagの基本データが入ってくるので取得。
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         if (tag == null) {
@@ -107,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
         if ( this.isFinishing() ) {
             mAdapter.disableForegroundDispatch(this);
         }
