@@ -10,3 +10,6 @@ FeliCaの残高を読み取るAndroidアプリ
 ・[AndroidでFelica(NFC)のブロックデータの取得](http://qiita.com/pear510/items/38f94d61c020a17314b6)  
 ・[androidでsuicaのデータを一部読み取り実験](http://m-shige1979.hatenablog.com/entry/2015/09/30/080000)  
 ・[FeliCaカード ユーザーズマニュアル](http://www.sony.co.jp/Products/felica/business/tech-support/st_usmnl.html)
+
+## License
+MIT
