@@ -89,11 +89,6 @@ public class MainActivity extends AppCompatActivity {
             myDialog.show();
         }
 
-//        Intent intent = getIntent();
-//        String action = intent.getAction();
-//        if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
-//            onNewIntent(intent);
-//        }
         Intent intent = getIntent();
         getTag(intent);
 
@@ -111,13 +106,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Log.d(TAG, "onNewIntent");
-        // IntentにTagの基本データが入ってくるので取得。
-//        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-//        if (tag == null) {
-//            return;
-//        }
-//        context = getApplicationContext();
-//        felicaReader.readTag(tag,context);
         getTag(intent);
     }
 
