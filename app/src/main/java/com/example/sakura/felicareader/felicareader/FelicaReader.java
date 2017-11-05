@@ -4,6 +4,7 @@ import android.content.Context;
 import android.nfc.Tag;
 import android.nfc.tech.NfcF;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -23,6 +24,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static android.content.Context.VIBRATOR_SERVICE;
+
 public class FelicaReader extends Fragment {
 
     private static final String TAG = "NFC";
@@ -39,6 +42,8 @@ public class FelicaReader extends Fragment {
     private final byte[] icamid = {(byte)0x01,(byte)0x12}; //ICOCA ManufactureID
     private final byte[] waonmid = {(byte)0x01,(byte)0x14}; //WAON ManufactureID
     //private final byte[] pitapaidm = {(byte)0x01,(byte)0x14}; //PiTaPa ManufactureID
+
+    //private long pattern[] = {0,100, 10, 100, 10, 100 };
 
 
     @Override
@@ -262,6 +267,8 @@ public class FelicaReader extends Fragment {
     }
 
     private void changeFragment(String data,String card){
+        Vibrator vibrator = (Vibrator)getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(70);
         HistoryView fragment = new HistoryView();
         FragmentTransaction transaction = this.getFragmentManager()
                 .beginTransaction();
