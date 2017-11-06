@@ -54,18 +54,9 @@ public class FelicaReader extends Fragment {
 
         byte[] felicaIDm;
         byte[] felicapmm;
-        byte[] servicecode;
-        byte[] targetSystemcode;
-        byte[] polling;
-        byte[] pollingRes;
-
         byte[] mftid;
 
         int number = 0;
-
-        String card = "";
-
-        servicecode = new byte[]{};
 
         NfcF nfc = NfcF.get(tag);
 
@@ -87,143 +78,40 @@ public class FelicaReader extends Fragment {
             //カードの識別
             if(Arrays.equals(felicapmm ,suicapasmopmm)||Arrays.equals(felicapmm ,icocapitapappm1)||Arrays.equals(felicapmm ,icocapitapappm2)) {
                 if(Arrays.equals(felicapmm, suicapasmopmm)) {
-                    Log.d(TAG, "systemcode:" + "Suica,PASMO");
-                    servicecode = new byte[]{(byte) 0x09, (byte) 0x0f};
                     number = 1;
-                    if (Arrays.equals(mftid, suicamid)) {
-                        card = "Suica";
-                    } else if (Arrays.equals(mftid, pasmomid)) {
-                        card = "PASMO";
-                    } else {
-                        card = "Suica/PASMO";
-                    }
+                    felica(nfc,felicaIDm,mftid,number,context);
                 }else if(Arrays.equals(felicapmm, icocapitapappm1)||Arrays.equals(felicapmm, icocapitapappm2)) {
-                    Log.d(TAG, "systemcode:" + "ICOCA,PiTaPa");
-                    servicecode = new byte[]{(byte) 0x09, (byte) 0x0f};
                     number = 2;
-                    if (Arrays.equals(mftid, icocamid)) {
-                        card = "ICOCA";
-                    } else {
-                        //card = "PiTaPa";
-                        card = "ICOCA,PiTaPa";
-                    }
+                    felica(nfc,felicaIDm,mftid,number,context);
                 }
-                byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
-                Log.d(TAG, "req:" + toHex(req));
-                byte[] res = nfc.transceive(req);                           // カードにリクエスト送信
-                Log.d(TAG, "res:" + toHex(res));
-                Log.d(TAG, "balance:" + parse(res, number, context));
-                changeFragment((parse(res, number, context)), card);
             }else if(Arrays.equals(felicapmm, edynanacopmm)){
                 try{
-                    Log.d(TAG, "systemcode:" + "nanaco");
-                    targetSystemcode = new byte[]{(byte) 0xfe, (byte) 0x00};
-                    polling = polling(targetSystemcode);                  //Poolingコマンド作成
-                    pollingRes = nfc.transceive(polling);                 //Poolingコマンド送信・結果取得
-                    felicaIDm = Arrays.copyOfRange(pollingRes, 2, 10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
-                    Log.d(TAG, "IDm:" + toHex(felicaIDm));
-                    servicecode = new byte[]{(byte) 0x55, (byte) 0x97};
                     number = 6;
-                    card = "nanaco";
-                    byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
-                    Log.d(TAG, "req:" + toHex(req));
-                    byte[] res = nfc.transceive(req);                       // カードにリクエスト送信
-                    Log.d(TAG, "res:"   + toHex(res));
-                    Log.d(TAG, "balance:" + parse(res,number,context));
-                    changeFragment((parse(res,number,context)),card);
+                    felica(nfc,felicaIDm,mftid,number,context);
                 } catch(Exception e){
-                    Log.d(TAG, "systemcode:" + "Edy");
-                    targetSystemcode = new byte[]{(byte)0xfe,(byte)0x00};   //System 1(第２層)
-                    polling = polling(targetSystemcode);                    //Poolingコマンド作成
-                    pollingRes = nfc.transceive(polling);                   //Poolingコマンド送信・結果取得
-                    felicaIDm = Arrays.copyOfRange(pollingRes,2,10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
-                    servicecode = new byte[]{(byte) 0x17 ,(byte) 0x0f};
                     number = 4;
-                    card = "Edy";
-                    byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
-                    Log.d(TAG, "req:" + toHex(req));
-                    byte[] res = nfc.transceive(req);                       // カードにリクエスト送信
-                    Log.d(TAG, "res:"   + toHex(res));
-                    Log.d(TAG, "balance:" + parse(res,number,context));
-                    changeFragment((parse(res,number,context)),card);
+                    felica(nfc,felicaIDm,mftid,number,context);
                 }
             }else if(Arrays.equals(felicapmm ,icawaonpmm)){
                 if(Arrays.equals(mftid, icamid)){
-                    Log.d(TAG, "systemcode:" + "ICa");
-                    servicecode =new byte[]{(byte) 0x89 ,(byte) 0x8f};
                     number = 3;
-                    card = "ICa";
-                    byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
-                    Log.d(TAG, "req:" + toHex(req));
-                    byte[] res = nfc.transceive(req);                       // カードにリクエスト送信
-                    Log.d(TAG, "res:"   + toHex(res));
-                    Log.d(TAG, "balance:" + parse(res,number,context));
-                    changeFragment((parse(res,number,context)),card);
+                    felica(nfc,felicaIDm,mftid,number,context);
                 }else if(Arrays.equals(mftid, waonmid1)||Arrays.equals(mftid, waonmid2)){
                     try{
-                        Log.d(TAG, "systemcode:" + "WAON");
-                        targetSystemcode = new byte[]{(byte)0xfe,(byte)0x00};
-                        polling = polling(targetSystemcode);                  //Poolingコマンド作成
-                        pollingRes = nfc.transceive(polling);                 //Poolingコマンド送信・結果取得
-                        felicaIDm = Arrays.copyOfRange(pollingRes,2,10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
-                        Log.d(TAG, "IDm:" + toHex(felicaIDm));
-                        servicecode =new byte[]{(byte) 0x68 ,(byte) 0x17};
                         number = 5;
-                        card = "WAON";
-                        byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
-                        Log.d(TAG, "req:" + toHex(req));
-                        byte[] res = nfc.transceive(req);                       // カードにリクエスト送信
-                        Log.d(TAG, "res:"   + toHex(res));
-                        Log.d(TAG, "balance:" + parse(res,number,context));
-                        changeFragment((parse(res,number,context)),card);
+                        felica(nfc,felicaIDm,mftid,number,context);
                     }catch (Exception e){
-                        Log.d(TAG, "systemcode:" + "Edy");
-                        targetSystemcode = new byte[]{(byte)0xfe,(byte)0x00};   //System 1(第２層)
-                        polling = polling(targetSystemcode);                    //Poolingコマンド作成
-                        pollingRes = nfc.transceive(polling);                   //Poolingコマンド送信・結果取得
-                        felicaIDm = Arrays.copyOfRange(pollingRes,2,10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
-                        servicecode = new byte[]{(byte) 0x17 ,(byte) 0x0f};
                         number = 4;
-                        card = "Edy";
-                        byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
-                        Log.d(TAG, "req:" + toHex(req));
-                        byte[] res = nfc.transceive(req);                       // カードにリクエスト送信
-                        Log.d(TAG, "res:"   + toHex(res));
-                        Log.d(TAG, "balance:" + parse(res,number,context));
-                        changeFragment((parse(res,number,context)),card);
+                        felica(nfc,felicaIDm,mftid,number,context);
                     }
                 }
             }else if(Arrays.equals(felicapmm ,edywaonpmm)){
                 try{
-                    Log.d(TAG, "systemcode:" + "Edy");
-                    targetSystemcode = new byte[]{(byte)0xfe,(byte)0x00};   //System 1(第２層)
-                    polling = polling(targetSystemcode);                    //Poolingコマンド作成
-                    pollingRes = nfc.transceive(polling);                   //Poolingコマンド送信・結果取得
-                    felicaIDm = Arrays.copyOfRange(pollingRes,2,10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
-                    servicecode = new byte[]{(byte) 0x17 ,(byte) 0x0f};
                     number = 4;
-                    card = "Edy";
-                    byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
-                    Log.d(TAG, "req:" + toHex(req));
-                    byte[] res = nfc.transceive(req);                       // カードにリクエスト送信
-                    Log.d(TAG, "res:"   + toHex(res));
-                    Log.d(TAG, "balance:" + parse(res,number,context));
-                    changeFragment((parse(res,number,context)),card);
+                    felica(nfc,felicaIDm,mftid,number,context);
                 }catch (Exception e){
-                    Log.d(TAG, "systemcode:" + "WAON");
-                    targetSystemcode = new byte[]{(byte)0xfe,(byte)0x00};
-                    polling = polling(targetSystemcode);                    //Poolingコマンド作成
-                    pollingRes = nfc.transceive(polling);                   //Poolingコマンド送信・結果取得
-                    felicaIDm = Arrays.copyOfRange(pollingRes,2,10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
-                    servicecode =new byte[]{(byte) 0x68 ,(byte) 0x17};
                     number = 5;
-                    card = "WAON";
-                    byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
-                    Log.d(TAG, "req:" + toHex(req));
-                    byte[] res = nfc.transceive(req);                       // カードにリクエスト送信
-                    Log.d(TAG, "res:"   + toHex(res));
-                    Log.d(TAG, "balance:" + parse(res,number,context));
-                    changeFragment((parse(res,number,context)),card);
+                    felica(nfc,felicaIDm,mftid,number,context);
                 }
             }
         } catch (Exception e) {
@@ -237,12 +125,81 @@ public class FelicaReader extends Fragment {
         }
     }
 
+    private void felica(NfcF nfc, byte[] felicaIDm, byte[] mftid, int number, Context context) throws Exception {
+        byte[] polling;
+        byte[] pollingRes;
+        byte[] targetSystemcode;
+        byte[] servicecode;
+        String card = "";
+        servicecode = new byte[]{};
+        switch (number){
+            case 1:
+                Log.d(TAG, "FeliCa:" + "Suica,PASMO");
+                servicecode = new byte[]{(byte) 0x09, (byte) 0x0f};
+                if (Arrays.equals(mftid, suicamid)) {
+                    card = "Suica";
+                } else if (Arrays.equals(mftid, pasmomid)) {
+                    card = "PASMO";
+                } else {
+                    card = "Suica/PASMO";
+                }
+                break;
+            case 2:
+                Log.d(TAG, "FeliCa:" + "ICOCA,PiTaPa");
+                servicecode = new byte[]{(byte) 0x09, (byte) 0x0f};
+                if (Arrays.equals(mftid, icocamid)) {
+                    card = "ICOCA";
+                } else {
+                    //card = "PiTaPa";
+                    card = "ICOCA,PiTaPa";
+                }
+                break;
+            case 3:
+                Log.d(TAG, "FeliCa:" + "ICa");
+                servicecode =new byte[]{(byte) 0x89 ,(byte) 0x8f};
+                card = "ICa";
+                break;
+            case 4:
+                Log.d(TAG, "FeliCa:" + "Edy");
+                targetSystemcode = new byte[]{(byte)0xfe,(byte)0x00};   //System 1(第２層)
+                polling = polling(targetSystemcode);                    //Poolingコマンド作成
+                pollingRes = nfc.transceive(polling);                   //Poolingコマンド送信・結果取得
+                felicaIDm = Arrays.copyOfRange(pollingRes,2,10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
+                servicecode = new byte[]{(byte) 0x17 ,(byte) 0x0f};
+                card = "Edy";
+                break;
+            case 5:
+                Log.d(TAG, "FeliCa:" + "WAON");
+                targetSystemcode = new byte[]{(byte)0xfe,(byte)0x00};
+                polling = polling(targetSystemcode);                    //Poolingコマンド作成
+                pollingRes = nfc.transceive(polling);                   //Poolingコマンド送信・結果取得
+                felicaIDm = Arrays.copyOfRange(pollingRes,2,10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
+                servicecode =new byte[]{(byte) 0x68 ,(byte) 0x17};
+                card = "WAON";
+                break;
+            case 6:
+                Log.d(TAG, "FeliCa:" + "nanaco");
+                targetSystemcode = new byte[]{(byte) 0xfe, (byte) 0x00};
+                polling = polling(targetSystemcode);                  //Poolingコマンド作成
+                pollingRes = nfc.transceive(polling);                 //Poolingコマンド送信・結果取得
+                felicaIDm = Arrays.copyOfRange(pollingRes, 2, 10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
+                servicecode = new byte[]{(byte) 0x55, (byte) 0x97};
+                card = "nanaco";
+                break;
+        }
+        byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
+        Log.d(TAG, "req:" + toHex(req));
+        byte[] res = nfc.transceive(req);                       // カードにリクエスト送信
+        Log.d(TAG, "res:"   + toHex(res));
+        Log.d(TAG, "balance:" + parse(res,number,context));
+        changeFragment((parse(res,number,context)),card);
+    }
+
     /**
      * Polling コマンド取得
      */
     private byte[] polling(byte[] systemCode) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream(100);
-
         bout.write(0x00);           // データ長バイトのダミー
         bout.write(0x00);           // コマンドコード
         bout.write(systemCode[0]);  // systemCode
