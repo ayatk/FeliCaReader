@@ -34,7 +34,7 @@ public class FelicaReader extends Fragment {
     private final byte[] icocapitapappm2 = {(byte)0x01,(byte)0x36,(byte)0x42,(byte)0x82,(byte)0x47,(byte)0x45,(byte)0x9a,(byte)0xFF}; //ICOCA,PiTaPa PMm
     private final byte[] icawaonpmm = {(byte)0x03,(byte)0x01,(byte)0x4B,(byte)0x02,(byte)0x4F,(byte)0x49,(byte)0x93,(byte)0xFF}; //ICa,WAON(JAL),Edy PMm
     private final byte[] edywaonpmm = {(byte)0x01,(byte)0x20,(byte)0x22,(byte)0x04,(byte)0x27,(byte)0x67,(byte)0x4E,(byte)0xFF}; //Edy,WAON(credit) PMm
-    private final byte[] nanacopmm = {(byte)0x03,(byte)0x32,(byte)0x42,(byte)0x82,(byte)0x82,(byte)0x47,(byte)0xAA,(byte)0xFF}; //nanaco PMm
+    private final byte[] edynanacopmm = {(byte)0x03,(byte)0x32,(byte)0x42,(byte)0x82,(byte)0x82,(byte)0x47,(byte)0xAA,(byte)0xFF}; //nanaco,Edy PMm
 
     private final byte[] suicamid = {(byte)0x01,(byte)0x14}; //Suica ManufactureID
     private final byte[] pasmomid = {(byte)0x01,(byte)0x10}; //PASMO ManufactureID
@@ -85,8 +85,8 @@ public class FelicaReader extends Fragment {
             nfc.connect();
 
             //カードの識別
-            if(Arrays.equals(felicapmm ,suicapasmopmm)||Arrays.equals(felicapmm ,icocapitapappm1)||Arrays.equals(felicapmm ,icocapitapappm2)||Arrays.equals(felicapmm, nanacopmm)) {
-                if (Arrays.equals(felicapmm, suicapasmopmm)) {
+            if(Arrays.equals(felicapmm ,suicapasmopmm)||Arrays.equals(felicapmm ,icocapitapappm1)||Arrays.equals(felicapmm ,icocapitapappm2)) {
+                if(Arrays.equals(felicapmm, suicapasmopmm)) {
                     Log.d(TAG, "systemcode:" + "Suica,PASMO");
                     servicecode = new byte[]{(byte) 0x09, (byte) 0x0f};
                     number = 1;
@@ -97,7 +97,7 @@ public class FelicaReader extends Fragment {
                     } else {
                         card = "Suica/PASMO";
                     }
-                } else if (Arrays.equals(felicapmm, icocapitapappm1) || Arrays.equals(felicapmm, icocapitapappm2)) {
+                }else if(Arrays.equals(felicapmm, icocapitapappm1)||Arrays.equals(felicapmm, icocapitapappm2)) {
                     Log.d(TAG, "systemcode:" + "ICOCA,PiTaPa");
                     servicecode = new byte[]{(byte) 0x09, (byte) 0x0f};
                     number = 2;
@@ -107,23 +107,46 @@ public class FelicaReader extends Fragment {
                         //card = "PiTaPa";
                         card = "ICOCA,PiTaPa";
                     }
-                } else if (Arrays.equals(felicapmm, nanacopmm)){
-                    Log.d(TAG, "systemcode:" + "nanaco");
-                    targetSystemcode = new byte[]{(byte)0xfe,(byte)0x00};
-                    polling = polling(targetSystemcode);                  //Poolingコマンド作成
-                    pollingRes = nfc.transceive(polling);                 //Poolingコマンド送信・結果取得
-                    felicaIDm = Arrays.copyOfRange(pollingRes,2,10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
-                    Log.d(TAG, "IDm:" + toHex(felicaIDm));
-                    servicecode =new byte[]{(byte) 0x55 ,(byte) 0x97};
-                    number = 6;
-                    card = "nanaco";
                 }
                 byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
                 Log.d(TAG, "req:" + toHex(req));
                 byte[] res = nfc.transceive(req);                           // カードにリクエスト送信
-                Log.d(TAG, "res:"   + toHex(res));
-                Log.d(TAG, "balance:" + parse(res,number,context));
-                changeFragment((parse(res,number,context)),card);
+                Log.d(TAG, "res:" + toHex(res));
+                Log.d(TAG, "balance:" + parse(res, number, context));
+                changeFragment((parse(res, number, context)), card);
+            }else if(Arrays.equals(felicapmm, edynanacopmm)){
+                try{
+                    Log.d(TAG, "systemcode:" + "nanaco");
+                    targetSystemcode = new byte[]{(byte) 0xfe, (byte) 0x00};
+                    polling = polling(targetSystemcode);                  //Poolingコマンド作成
+                    pollingRes = nfc.transceive(polling);                 //Poolingコマンド送信・結果取得
+                    felicaIDm = Arrays.copyOfRange(pollingRes, 2, 10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
+                    Log.d(TAG, "IDm:" + toHex(felicaIDm));
+                    servicecode = new byte[]{(byte) 0x55, (byte) 0x97};
+                    number = 6;
+                    card = "nanaco";
+                    byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
+                    Log.d(TAG, "req:" + toHex(req));
+                    byte[] res = nfc.transceive(req);                       // カードにリクエスト送信
+                    Log.d(TAG, "res:"   + toHex(res));
+                    Log.d(TAG, "balance:" + parse(res,number,context));
+                    changeFragment((parse(res,number,context)),card);
+                } catch(Exception e){
+                    Log.d(TAG, "systemcode:" + "Edy");
+                    targetSystemcode = new byte[]{(byte)0xfe,(byte)0x00};   //System 1(第２層)
+                    polling = polling(targetSystemcode);                    //Poolingコマンド作成
+                    pollingRes = nfc.transceive(polling);                   //Poolingコマンド送信・結果取得
+                    felicaIDm = Arrays.copyOfRange(pollingRes,2,10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
+                    servicecode = new byte[]{(byte) 0x17 ,(byte) 0x0f};
+                    number = 4;
+                    card = "Edy";
+                    byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
+                    Log.d(TAG, "req:" + toHex(req));
+                    byte[] res = nfc.transceive(req);                       // カードにリクエスト送信
+                    Log.d(TAG, "res:"   + toHex(res));
+                    Log.d(TAG, "balance:" + parse(res,number,context));
+                    changeFragment((parse(res,number,context)),card);
+                }
             }else if(Arrays.equals(felicapmm ,icawaonpmm)){
                 if(Arrays.equals(mftid, icamid)){
                     Log.d(TAG, "systemcode:" + "ICa");
