@@ -1,26 +1,24 @@
 package com.example.sakura.felicareader.felicahistory;
 
 /**
- * WAON履歴コード
- * 参考：http://jennychan.web.fc2.com/format/waon.html
+ * nanaco履歴コード
+ * 参考：http://jennychan.web.fc2.com/format/nanaco.html
  */
 
-
-public class WaonHistory {
-
+public class NanacoHistory {
     public int remain;
 
-    public WaonHistory(){
+    public NanacoHistory(){
     }
 
-    public static WaonHistory parse(byte[] res, int off) {
-        WaonHistory self = new WaonHistory();
+    public static NanacoHistory parse(byte[] res, int off) {
+        NanacoHistory self = new NanacoHistory();
         self.init(res, off);
         return self;
     }
 
     private void init(byte[] res, int off) {
-        this.remain  = toInt(res, off,1, 0); //0: Edy残高
+        this.remain  = toInt(res, off, 3,2,1,0); //12-15: Edy残高
     }
 
     private int toInt(byte[] res, int off, int... idx) {

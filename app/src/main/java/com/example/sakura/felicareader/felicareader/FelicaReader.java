@@ -17,14 +17,13 @@ import com.example.sakura.felicareader.R;
 import com.example.sakura.felicareader.felicahistory.EdyHistory;
 import com.example.sakura.felicareader.felicahistory.ICaHistory;
 import com.example.sakura.felicareader.felicahistory.IcocaPitapaHistory;
+import com.example.sakura.felicareader.felicahistory.NanacoHistory;
 import com.example.sakura.felicareader.felicahistory.SuicaPasmoHistory;
 import com.example.sakura.felicareader.felicahistory.WaonHistory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
-
-import static android.content.Context.VIBRATOR_SERVICE;
 
 public class FelicaReader extends Fragment {
 
@@ -33,18 +32,18 @@ public class FelicaReader extends Fragment {
     private final byte[] suicapasmopmm = {(byte)0x10,(byte)0x0B,(byte)0x4B,(byte)0x42,(byte)0x84,(byte)0x85,(byte)0xD0,(byte)0xFF}; //Suica,PASMO PMm
     private final byte[] icocapitapappm1 = {(byte)0x04,(byte)0x01,(byte)0x4B,(byte)0x02,(byte)0x4F,(byte)0x49,(byte)0x93,(byte)0xFF}; //ICOCA,PiTaPa PMm
     private final byte[] icocapitapappm2 = {(byte)0x01,(byte)0x36,(byte)0x42,(byte)0x82,(byte)0x47,(byte)0x45,(byte)0x9a,(byte)0xFF}; //ICOCA,PiTaPa PMm
-    private final byte[] icawaonpmm = {(byte)0x03,(byte)0x01,(byte)0x4B,(byte)0x02,(byte)0x4F,(byte)0x49,(byte)0x93,(byte)0xFF}; //ICa,WAON(JAL) PMm
+    private final byte[] icawaonpmm = {(byte)0x03,(byte)0x01,(byte)0x4B,(byte)0x02,(byte)0x4F,(byte)0x49,(byte)0x93,(byte)0xFF}; //ICa,WAON(JAL),Edy PMm
     private final byte[] edywaonpmm = {(byte)0x01,(byte)0x20,(byte)0x22,(byte)0x04,(byte)0x27,(byte)0x67,(byte)0x4E,(byte)0xFF}; //Edy,WAON(credit) PMm
+    private final byte[] nanacopmm = {(byte)0x03,(byte)0x32,(byte)0x42,(byte)0x82,(byte)0x82,(byte)0x47,(byte)0xAA,(byte)0xFF}; //nanaco PMm
 
     private final byte[] suicamid = {(byte)0x01,(byte)0x14}; //Suica ManufactureID
     private final byte[] pasmomid = {(byte)0x01,(byte)0x10}; //PASMO ManufactureID
     private final byte[] icocamid = {(byte)0x01,(byte)0x01}; //ICOCA ManufactureID
     private final byte[] icamid = {(byte)0x01,(byte)0x12}; //ICOCA ManufactureID
-    private final byte[] waonmid = {(byte)0x01,(byte)0x14}; //WAON ManufactureID
-    //private final byte[] pitapaidm = {(byte)0x01,(byte)0x14}; //PiTaPa ManufactureID
-
-    //private long pattern[] = {0,100, 10, 100, 10, 100 };
-
+    private final byte[] waonmid1 = {(byte)0x01,(byte)0x14}; //WAON ManufactureID
+    private final byte[] waonmid2 = {(byte)0x01,(byte)0x16}; //WAON ManufactureID
+    //private final byte[] nanacoid = {(byte)0x01,(byte)0x10}; //nanaco ManufactureID
+    //private final byte[] pitapaid = {(byte)0x01,(byte)0x14}; //PiTaPa ManufactureID
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -86,35 +85,59 @@ public class FelicaReader extends Fragment {
             nfc.connect();
 
             //カードの識別
-            if(Arrays.equals(felicapmm ,suicapasmopmm)||Arrays.equals(felicapmm ,icocapitapappm1)||Arrays.equals(felicapmm ,icocapitapappm2)||Arrays.equals(felicapmm ,icawaonpmm)){
-                if(Arrays.equals(felicapmm ,suicapasmopmm)){
+            if(Arrays.equals(felicapmm ,suicapasmopmm)||Arrays.equals(felicapmm ,icocapitapappm1)||Arrays.equals(felicapmm ,icocapitapappm2)||Arrays.equals(felicapmm, nanacopmm)) {
+                if (Arrays.equals(felicapmm, suicapasmopmm)) {
                     Log.d(TAG, "systemcode:" + "Suica,PASMO");
-                    servicecode =new byte[]{(byte) 0x09 ,(byte) 0x0f};
+                    servicecode = new byte[]{(byte) 0x09, (byte) 0x0f};
                     number = 1;
-                    if(Arrays.equals(mftid, suicamid)){
+                    if (Arrays.equals(mftid, suicamid)) {
                         card = "Suica";
-                    }else if(Arrays.equals(mftid, pasmomid)){
+                    } else if (Arrays.equals(mftid, pasmomid)) {
                         card = "PASMO";
-                    }else{
+                    } else {
                         card = "Suica/PASMO";
                     }
-                }else if(Arrays.equals(felicapmm ,icocapitapappm1) || Arrays.equals(felicapmm ,icocapitapappm2)){
+                } else if (Arrays.equals(felicapmm, icocapitapappm1) || Arrays.equals(felicapmm, icocapitapappm2)) {
                     Log.d(TAG, "systemcode:" + "ICOCA,PiTaPa");
-                    servicecode =new byte[]{(byte) 0x09 ,(byte) 0x0f};
+                    servicecode = new byte[]{(byte) 0x09, (byte) 0x0f};
                     number = 2;
-                    if(Arrays.equals(mftid, icocamid)){
+                    if (Arrays.equals(mftid, icocamid)) {
                         card = "ICOCA";
-                    }else{
+                    } else {
                         //card = "PiTaPa";
                         card = "ICOCA,PiTaPa";
                     }
-                }else if(Arrays.equals(felicapmm ,icawaonpmm)){
-                    if(Arrays.equals(mftid, icamid)){
-                        Log.d(TAG, "systemcode:" + "ICa");
-                        servicecode =new byte[]{(byte) 0x89 ,(byte) 0x8f};
-                        number = 3;
-                        card = "ICa";
-                    }else if(Arrays.equals(mftid, waonmid)){
+                } else if (Arrays.equals(felicapmm, nanacopmm)){
+                    Log.d(TAG, "systemcode:" + "nanaco");
+                    targetSystemcode = new byte[]{(byte)0xfe,(byte)0x00};
+                    polling = polling(targetSystemcode);                  //Poolingコマンド作成
+                    pollingRes = nfc.transceive(polling);                 //Poolingコマンド送信・結果取得
+                    felicaIDm = Arrays.copyOfRange(pollingRes,2,10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
+                    Log.d(TAG, "IDm:" + toHex(felicaIDm));
+                    servicecode =new byte[]{(byte) 0x55 ,(byte) 0x97};
+                    number = 6;
+                    card = "nanaco";
+                }
+                byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
+                Log.d(TAG, "req:" + toHex(req));
+                byte[] res = nfc.transceive(req);                           // カードにリクエスト送信
+                Log.d(TAG, "res:"   + toHex(res));
+                Log.d(TAG, "balance:" + parse(res,number,context));
+                changeFragment((parse(res,number,context)),card);
+            }else if(Arrays.equals(felicapmm ,icawaonpmm)){
+                if(Arrays.equals(mftid, icamid)){
+                    Log.d(TAG, "systemcode:" + "ICa");
+                    servicecode =new byte[]{(byte) 0x89 ,(byte) 0x8f};
+                    number = 3;
+                    card = "ICa";
+                    byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
+                    Log.d(TAG, "req:" + toHex(req));
+                    byte[] res = nfc.transceive(req);                       // カードにリクエスト送信
+                    Log.d(TAG, "res:"   + toHex(res));
+                    Log.d(TAG, "balance:" + parse(res,number,context));
+                    changeFragment((parse(res,number,context)),card);
+                }else if(Arrays.equals(mftid, waonmid1)||Arrays.equals(mftid, waonmid2)){
+                    try{
                         Log.d(TAG, "systemcode:" + "WAON");
                         targetSystemcode = new byte[]{(byte)0xfe,(byte)0x00};
                         polling = polling(targetSystemcode);                  //Poolingコマンド作成
@@ -124,14 +147,29 @@ public class FelicaReader extends Fragment {
                         servicecode =new byte[]{(byte) 0x68 ,(byte) 0x17};
                         number = 5;
                         card = "WAON";
+                        byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
+                        Log.d(TAG, "req:" + toHex(req));
+                        byte[] res = nfc.transceive(req);                       // カードにリクエスト送信
+                        Log.d(TAG, "res:"   + toHex(res));
+                        Log.d(TAG, "balance:" + parse(res,number,context));
+                        changeFragment((parse(res,number,context)),card);
+                    }catch (Exception e){
+                        Log.d(TAG, "systemcode:" + "Edy");
+                        targetSystemcode = new byte[]{(byte)0xfe,(byte)0x00};   //System 1(第２層)
+                        polling = polling(targetSystemcode);                    //Poolingコマンド作成
+                        pollingRes = nfc.transceive(polling);                   //Poolingコマンド送信・結果取得
+                        felicaIDm = Arrays.copyOfRange(pollingRes,2,10);      //System1のIDm取得(1バイト目データサイズ,2バイト目レスポンスコード,IDm8バイト)
+                        servicecode = new byte[]{(byte) 0x17 ,(byte) 0x0f};
+                        number = 4;
+                        card = "Edy";
+                        byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
+                        Log.d(TAG, "req:" + toHex(req));
+                        byte[] res = nfc.transceive(req);                       // カードにリクエスト送信
+                        Log.d(TAG, "res:"   + toHex(res));
+                        Log.d(TAG, "balance:" + parse(res,number,context));
+                        changeFragment((parse(res,number,context)),card);
                     }
                 }
-                byte[] req = readWithoutEncryption(felicaIDm, servicecode, 1);  // Read Without Encryption コマンドを作成(IDm,読み取る個数)
-                Log.d(TAG, "req:" + toHex(req));
-                byte[] res = nfc.transceive(req);                           // カードにリクエスト送信
-                Log.d(TAG, "res:"   + toHex(res));
-                Log.d(TAG, "balance:" + parse(res,number,context));
-                changeFragment((parse(res,number,context)),card);
             }else if(Arrays.equals(felicapmm ,edywaonpmm)){
                 try{
                     Log.d(TAG, "systemcode:" + "Edy");
@@ -256,6 +294,12 @@ public class FelicaReader extends Fragment {
             case 5:
                 for (int i = 0; i < size; i++) {
                     WaonHistory rireki = WaonHistory.parse(res, 13 + i * 16);
+                    str = rireki.toString() +"\n";
+                }
+                break;
+            case 6:
+                for (int i = 0; i < size; i++) {
+                    NanacoHistory rireki = NanacoHistory.parse(res, 13 + i * 16);
                     str = rireki.toString() +"\n";
                 }
                 break;

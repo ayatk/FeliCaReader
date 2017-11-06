@@ -1,7 +1,8 @@
 package com.example.sakura.felicareader.felicahistory;
 
 /**
- * Created by sakura on 2016/10/05.
+ * Edy履歴コード
+ * 参考：http://jennychan.web.fc2.com/format/edy.html
  */
 
 public class EdyHistory {
