@@ -38,6 +38,7 @@ public class FelicaReader extends Fragment {
 
     private final byte[] suicamid1 = {(byte)0x01,(byte)0x14}; //Suica ManufactureID
     private final byte[] suicamid2 = {(byte)0x01,(byte)0x01}; //Suica ManufactureID
+    private final byte[] suicamid3 = {(byte)0x01,(byte)0x12}; //Suica ManufactureID
     private final byte[] pasmomid = {(byte)0x01,(byte)0x10}; //PASMO ManufactureID
     private final byte[] icocamid = {(byte)0x01,(byte)0x01}; //ICOCA ManufactureID
     private final byte[] icamid = {(byte)0x01,(byte)0x12}; //ICOCA ManufactureID
@@ -127,6 +128,9 @@ public class FelicaReader extends Fragment {
         }
     }
 
+    /**
+     * 各種FeliCa用の処理
+     */
     private void felica(NfcF nfc, byte[] felicaIDm, byte[] mftid, int number, Context context) throws Exception {
         byte[] polling;
         byte[] pollingRes;
@@ -138,7 +142,7 @@ public class FelicaReader extends Fragment {
             case 1:
                 Log.d(TAG, "FeliCa:" + "Suica,PASMO");
                 servicecode = new byte[]{(byte) 0x09, (byte) 0x0f};
-                if (Arrays.equals(mftid, suicamid1)||Arrays.equals(mftid, suicamid2)) {
+                if (Arrays.equals(mftid, suicamid1)||Arrays.equals(mftid, suicamid2)||Arrays.equals(mftid, suicamid3)) {
                     card = "Suica";
                 } else if (Arrays.equals(mftid, pasmomid)) {
                     card = "PASMO";
