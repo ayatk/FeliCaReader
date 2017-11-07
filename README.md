@@ -1,5 +1,14 @@
 # FeliCaReader
 FeliCaの残高を読み取るAndroidアプリ  
+対応FeliCa  
+・Suica  
+・PASMO  
+・ICOCA  
+・PiTaPa  
+・ICa  
+・WAON  
+・Edy  
+・nanaco  
 ※今後別のFelicaにも対応する予定
 
 ## 追加予定の機能
