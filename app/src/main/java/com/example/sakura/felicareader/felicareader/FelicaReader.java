@@ -36,6 +36,8 @@ public class FelicaReader extends Fragment {
     private final byte[] edywaonpmm = {(byte)0x01,(byte)0x20,(byte)0x22,(byte)0x04,(byte)0x27,(byte)0x67,(byte)0x4E,(byte)0xFF}; //Edy,WAON(credit) PMm
     private final byte[] edynanacopmm = {(byte)0x03,(byte)0x32,(byte)0x42,(byte)0x82,(byte)0x82,(byte)0x47,(byte)0xAA,(byte)0xFF}; //nanaco,Edy PMm
 
+    private final byte[] suicapmm = {(byte)0x05,(byte)0x31,(byte)0x43,(byte)0x45,(byte)0x46,(byte)0x82,(byte)0xB7,(byte)0xFF}; //new suica 2017年12月14日
+
     private final byte[] suicamid1 = {(byte)0x01,(byte)0x14}; //Suica ManufactureID
     private final byte[] suicamid2 = {(byte)0x01,(byte)0x01}; //Suica ManufactureID
     private final byte[] suicamid3 = {(byte)0x01,(byte)0x12}; //Suica ManufactureID
@@ -78,8 +80,8 @@ public class FelicaReader extends Fragment {
             nfc.connect();
 
             //カードの識別
-            if(Arrays.equals(felicapmm ,suicapasmopmm)||Arrays.equals(felicapmm ,icocapitapappm1)||Arrays.equals(felicapmm ,icocapitapappm2)) {
-                if(Arrays.equals(felicapmm, suicapasmopmm)) {
+            if(Arrays.equals(felicapmm ,suicapasmopmm)||Arrays.equals(felicapmm ,icocapitapappm1)||Arrays.equals(felicapmm ,icocapitapappm2)||Arrays.equals(felicapmm ,suicapmm)) {
+                if(Arrays.equals(felicapmm, suicapasmopmm)||Arrays.equals(felicapmm, suicapmm)) {
                     number = 1;
                     felica(nfc,felicaIDm,mftid,number,context);
                 }else if(Arrays.equals(felicapmm, icocapitapappm1)||Arrays.equals(felicapmm, icocapitapappm2)) {
