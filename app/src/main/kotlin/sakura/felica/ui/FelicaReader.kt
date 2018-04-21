@@ -1,4 +1,4 @@
-package sakura.felica.felicareader
+package sakura.felica.ui
 
 import android.content.Context
 import android.nfc.Tag

@@ -1,4 +1,4 @@
-package sakura.felica.felicareader
+package sakura.felica.ui
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
