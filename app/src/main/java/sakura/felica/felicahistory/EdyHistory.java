@@ -1,4 +1,4 @@
-package com.example.sakura.felicareader.felicahistory;
+package sakura.felica.felicahistory;
 
 /**
  * Edy履歴コード
@@ -6,10 +6,7 @@ package com.example.sakura.felicareader.felicahistory;
  */
 
 public class EdyHistory {
-    public int remain;
-
-    public EdyHistory(){
-    }
+    private int remain;
 
     public static EdyHistory parse(byte[] res, int off) {
         EdyHistory self = new EdyHistory();
@@ -18,20 +15,19 @@ public class EdyHistory {
     }
 
     private void init(byte[] res, int off) {
-        this.remain  = toInt(res, off, 12, 13, 14, 15); //12-15: Edy残高
+        this.remain = toInt(res, off, 12, 13, 14, 15); //12-15: Edy残高
     }
 
     private int toInt(byte[] res, int off, int... idx) {
         int num = 0;
-        for (int i=0; i<idx.length; i++) {
+        for (int anIdx : idx) {
             num = num << 8;
-            num += ((int)res[off+idx[i]]) & 0x0ff;
+            num += ((int) res[off + anIdx]) & 0x0ff;
         }
         return num;
     }
 
     public String toString() {
-        String str = "残高："+remain+"円";
-        return str;
+        return "残高：" + remain + "円";
     }
 }

@@ -1,23 +1,20 @@
-package com.example.sakura.felicareader.felicareader;
+package sakura.felica.felicareader;
 
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.NfcF;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
-import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 
-import com.example.sakura.felicareader.R;
-
+import sakura.felica.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,18 +22,12 @@ public class MainActivity extends AppCompatActivity {
     private String[][] techListsArray;
     private NfcAdapter mAdapter;
     private PendingIntent pendingIntent;
-    private Context context;
-
     private FelicaReader felicaReader = new FelicaReader();
-
-    private static final String TAG = "Activity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Log.d(TAG, "onCreate");
 
         if (savedInstanceState == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -50,32 +41,31 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             ndef.addDataType("text/plain");
-        }
-        catch (IntentFilter.MalformedMimeTypeException e) {
+        } catch (IntentFilter.MalformedMimeTypeException e) {
             throw new RuntimeException("fail", e);
         }
-        intentFiltersArray = new IntentFilter[] {ndef};
+        intentFiltersArray = new IntentFilter[]{ndef};
 
         // FelicaはNFC-TypeFなのでNfcFのみ指定
-        techListsArray = new String[][] {
-                new String[] { NfcF.class.getName() }
+        techListsArray = new String[][]{
+                new String[]{NfcF.class.getName()}
         };
 
         // NfcAdapterを取得
         mAdapter = NfcAdapter.getDefaultAdapter(getApplicationContext());
 
-        if (mAdapter==null) {
+        if (mAdapter == null) {
             //NFCが搭載されてない端末
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.MyAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyAlertDialogStyle);
             builder.setMessage("サービス対象外です");
             builder.setPositiveButton("キャンセル", null);
 
-        }else if (!mAdapter.isEnabled()) {
+        } else if (!mAdapter.isEnabled()) {
             //NFCが無効になっている時
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this,R.style.MyAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyAlertDialogStyle);
             builder.setTitle("NFC無効");
             builder.setMessage("NFCを有効にしてください");
-            builder.setPositiveButton("設定",new DialogInterface.OnClickListener() {
+            builder.setPositiveButton("設定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
                 }
@@ -97,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume");
         // NFCの読み込みを有効化
         mAdapter.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, techListsArray);
     }
@@ -105,28 +94,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        Log.d(TAG, "onNewIntent");
         getTag(intent);
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause");
-        if ( this.isFinishing() ) {
+        if (this.isFinishing()) {
             mAdapter.disableForegroundDispatch(this);
         }
         super.onPause();
     }
 
-    public void getTag(Intent intent){
+    public void getTag(Intent intent) {
         // IntentにTagの基本データが入ってくるので取得。
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         if (tag == null) {
             return;
         }
-        context = getApplicationContext();
-        felicaReader.readTag(tag,context);
+        felicaReader.readTag(tag, getApplicationContext());
     }
 
     @Override

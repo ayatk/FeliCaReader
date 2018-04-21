@@ -1,4 +1,4 @@
-package com.example.sakura.felicareader.felicahistory;
+package sakura.felica.felicahistory;
 
 /**
  * ICa履歴コード
@@ -6,10 +6,7 @@ package com.example.sakura.felicareader.felicahistory;
  */
 public class ICaHistory {
 
-    public int remain;
-
-    public ICaHistory(){
-    }
+    private int remain;
 
     public static ICaHistory parse(byte[] res, int off) {
         ICaHistory self = new ICaHistory();
@@ -18,20 +15,19 @@ public class ICaHistory {
     }
 
     private void init(byte[] res, int off) {
-        this.remain  = toInt(res, off, 13,14); //13-14: ICa残高
+        this.remain = toInt(res, off, 13, 14); //13-14: ICa残高
     }
 
     private int toInt(byte[] res, int off, int... idx) {
         int num = 0;
-        for (int i=0; i<idx.length; i++) {
+        for (int anIdx : idx) {
             num = num << 8;
-            num += ((int)res[off+idx[i]]) & 0x0ff;
+            num += ((int) res[off + anIdx]) & 0x0ff;
         }
         return num;
     }
 
     public String toString() {
-        String str = "残高："+remain+"円";
-        return str;
+        return "残高：" + remain + "円";
     }
 }

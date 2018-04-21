@@ -1,6 +1,7 @@
-package com.example.sakura.felicareader.felicareader;
+package sakura.felica.felicareader;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,28 +9,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.sakura.felicareader.R;
+import sakura.felica.R;
 
 public class HistoryView extends Fragment {
 
-    private View view;
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.historyview_fragment, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.historyview_fragment, container, false);
 
         Log.v("Cardview", getArguments().getString("card"));
         Log.v("Dataview", getArguments().getString("data"));
 
         // カード名表示
-        TextView cardText = (TextView) view.findViewById(R.id.card);
+        TextView cardText = view.findViewById(R.id.card);
         cardText.setText(getArguments().getString("card"));
         // 残高表示
-        TextView balanceText = (TextView) view.findViewById(R.id.balance);
+        TextView balanceText = view.findViewById(R.id.balance);
         balanceText.setText(getArguments().getString("data"));
 
         return view;
     }
-
-
 }
