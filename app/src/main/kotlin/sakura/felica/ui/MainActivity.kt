@@ -69,10 +69,7 @@ class MainActivity : AppCompatActivity() {
       //ダイアログ表示
       myDialog.show()
     }
-
-    val intent = intent
     getTag(intent)
-
   }
 
   override fun onResume() {

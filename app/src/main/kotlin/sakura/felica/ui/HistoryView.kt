@@ -2,13 +2,12 @@ package sakura.felica.ui
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-
 import sakura.felica.R
+import timber.log.Timber
 
 class HistoryView : Fragment() {
 
@@ -19,8 +18,8 @@ class HistoryView : Fragment() {
   ): View? {
     val view = inflater.inflate(R.layout.historyview_fragment, container, false)
 
-    Log.v("Cardview", arguments!!.getString("card"))
-    Log.v("Dataview", arguments!!.getString("data"))
+    Timber.v(arguments!!.getString("card"))
+    Timber.v(arguments!!.getString("data"))
 
     // カード名表示
     val cardText = view.findViewById<TextView>(R.id.card)

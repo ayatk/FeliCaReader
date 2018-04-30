@@ -18,6 +18,7 @@ import sakura.felica.felicahistory.IcocaPitapaHistory
 import sakura.felica.felicahistory.NanacoHistory
 import sakura.felica.felicahistory.SuicaPasmoHistory
 import sakura.felica.felicahistory.WaonHistory
+import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.*
@@ -127,15 +128,15 @@ class FelicaReader : Fragment() {
 
     //IDm取得
     felicaIDm = tag.id
-    Log.d(TAG, "IDm:" + toHex(felicaIDm))
+    Timber.d("IDm:%s", toHex(felicaIDm))
 
     //製造者ID取得
     mftid = byteArrayOf(felicaIDm[0], felicaIDm[1])
-    Log.d(TAG, "ManufactureID:" + toHex(mftid))
+    Timber.d("ManufactureID:%s", toHex(mftid))
 
     //PMm取得
     felicapmm = nfc.manufacturer
-    Log.d(TAG, "PMm:" + toHex(felicapmm))
+    Timber.d("PMm:%s", toHex(felicapmm))
 
     try {
       nfc.connect()
@@ -192,7 +193,7 @@ class FelicaReader : Fragment() {
 
       }
     } catch (e: Exception) {
-      Log.e(TAG, e.message, e)
+      Timber.e(e, e.message)
       Toast.makeText(context, R.string.read_error, Toast.LENGTH_LONG).show()
     } finally {
       try {
@@ -225,17 +226,18 @@ class FelicaReader : Fragment() {
       1 -> {
         Log.d(TAG, "FeliCa:" + "Suica,PASMO")
         servicecode = byteArrayOf(0x09.toByte(), 0x0f.toByte())
-        card = if (Arrays.equals(mftid, suicamid1) || Arrays.equals(mftid, suicamid2) || Arrays.equals(
-                mftid,
-                suicamid3
-            )
-        ) {
-          "Suica"
-        } else if (Arrays.equals(mftid, pasmomid)) {
-          "PASMO"
-        } else {
-          "Suica/PASMO"
-        }
+        card =
+            if (Arrays.equals(mftid, suicamid1) || Arrays.equals(mftid, suicamid2) || Arrays.equals(
+                    mftid,
+                    suicamid3
+                )
+            ) {
+              "Suica"
+            } else if (Arrays.equals(mftid, pasmomid)) {
+              "PASMO"
+            } else {
+              "Suica/PASMO"
+            }
       }
       2 -> {
         Log.d(TAG, "FeliCa:" + "ICOCA,PiTaPa")
