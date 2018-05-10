@@ -5,12 +5,12 @@ import android.nfc.Tag
 import android.nfc.tech.NfcF
 import android.os.Bundle
 import android.os.Vibrator
-import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import sakura.felica.R
 import sakura.felica.felicahistory.EdyHistory
 import sakura.felica.felicahistory.ICaHistory
@@ -21,7 +21,7 @@ import sakura.felica.felicahistory.WaonHistory
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.util.*
+import java.util.Arrays
 
 class FelicaReader : Fragment() {
 
@@ -109,9 +109,9 @@ class FelicaReader : Fragment() {
   //private final byte[] pitapaid = {(byte)0x01,(byte)0x14}; //PiTaPa ManufactureID
 
   override fun onCreateView(
-      inflater: LayoutInflater,
-      container: ViewGroup?,
-      savedInstanceState: Bundle?
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
   ): View? {
     return inflater.inflate(R.layout.readerview_fragment, container, false)
   }
@@ -167,7 +167,6 @@ class FelicaReader : Fragment() {
           number = 4
           felica(nfc, felicaIDm, mftid, number, context)
         }
-
       } else if (Arrays.equals(felicapmm, icawaonpmm)) {
         if (Arrays.equals(mftid, icamid)) {
           number = 3
@@ -180,7 +179,6 @@ class FelicaReader : Fragment() {
             number = 4
             felica(nfc, felicaIDm, mftid, number, context)
           }
-
         }
       } else if (Arrays.equals(felicapmm, edywaonpmm)) {
         try {
@@ -190,7 +188,6 @@ class FelicaReader : Fragment() {
           number = 5
           felica(nfc, felicaIDm, mftid, number, context)
         }
-
       }
     } catch (e: Exception) {
       Timber.e(e, e.message)
@@ -200,7 +197,6 @@ class FelicaReader : Fragment() {
         nfc.close()
       } catch (e: Exception) {
       }
-
     }
   }
 
@@ -209,11 +205,11 @@ class FelicaReader : Fragment() {
    */
   @Throws(Exception::class)
   private fun felica(
-      nfc: NfcF,
-      felicaIDm: ByteArray,
-      mftid: ByteArray,
-      number: Int,
-      context: Context
+    nfc: NfcF,
+    felicaIDm: ByteArray,
+    mftid: ByteArray,
+    number: Int,
+    context: Context
   ) {
     var felicaIDm = felicaIDm
     val polling: ByteArray
@@ -349,7 +345,7 @@ class FelicaReader : Fragment() {
 
   private fun parse(res: ByteArray, number: Int, context: Context): String {
     // res[10] = エラーコード。0x00の場合正常。
-    if (res[10].toInt() != 0x00) throw RuntimeException("Felica error.")
+//    if (res[10].toInt() != 0x00) throw RuntimeException("Felica error.")
 
     // res[12] = 応答ブロック数
     // res[13+n*16] = 履歴データ。16byte/ブロックの繰り返し。

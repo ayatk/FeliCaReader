@@ -8,15 +8,18 @@ import android.nfc.Tag
 import android.nfc.tech.NfcF
 import android.os.Bundle
 import android.provider.Settings
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import sakura.felica.R
 
 class MainActivity : AppCompatActivity() {
 
   private var intentFiltersArray: Array<IntentFilter>? = null
-  private var techListsArray: Array<Array<String>>? = null
-  private var mAdapter: NfcAdapter? = null
+  // FelicaはNFC-TypeFなのでNfcFのみ指定
+  private val techListsArray = arrayOf(arrayOf(NfcF::class.java.name))
+  private val nfcAdapter: NfcAdapter? by lazy {
+    NfcAdapter.getDefaultAdapter(this)
+  }
   private var pendingIntent: PendingIntent? = null
   private val felicaReader = FelicaReader()
 
@@ -43,19 +46,12 @@ class MainActivity : AppCompatActivity() {
 
     intentFiltersArray = arrayOf(ndef)
 
-    // FelicaはNFC-TypeFなのでNfcFのみ指定
-    techListsArray = arrayOf(arrayOf(NfcF::class.java.name))
-
-    // NfcAdapterを取得
-    mAdapter = NfcAdapter.getDefaultAdapter(applicationContext)
-
-    if (mAdapter == null) {
+    if (nfcAdapter == null) {
       //NFCが搭載されてない端末
       val builder = AlertDialog.Builder(this@MainActivity, R.style.MyAlertDialogStyle)
       builder.setMessage("サービス対象外です")
       builder.setPositiveButton("キャンセル", null)
-
-    } else if (!mAdapter!!.isEnabled) {
+    } else if (!nfcAdapter!!.isEnabled) {
       //NFCが無効になっている時
       val builder = AlertDialog.Builder(this@MainActivity, R.style.MyAlertDialogStyle)
       builder.setTitle("NFC無効")
@@ -74,8 +70,9 @@ class MainActivity : AppCompatActivity() {
 
   override fun onResume() {
     super.onResume()
+
     // NFCの読み込みを有効化
-    mAdapter!!.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, techListsArray)
+    nfcAdapter?.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, techListsArray)
   }
 
   override fun onNewIntent(intent: Intent) {
@@ -85,7 +82,7 @@ class MainActivity : AppCompatActivity() {
 
   override fun onPause() {
     if (this.isFinishing) {
-      mAdapter!!.disableForegroundDispatch(this)
+      nfcAdapter?.disableForegroundDispatch(this)
     }
     super.onPause()
   }
